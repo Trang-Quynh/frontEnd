@@ -34,11 +34,11 @@ class ProductController {
         };
         this.addProduct = async (req, res) => {
             let productData = req.body;
+            console.log(req.body);
             const productNew = await this.productService.add(productData);
             res.status(200).json(productNew);
         };
         this.deleteProductPost = async (req, res) => {
-            console.log(req);
             let id = req.params.id;
             await this.productService.deleteProduct(id);
             res.status(200).json({ message: 'delete success' });
