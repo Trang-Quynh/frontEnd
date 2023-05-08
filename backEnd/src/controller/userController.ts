@@ -46,7 +46,7 @@ class UserController {
                 let token = jwt.sign(payload, SECRET, {
                     expiresIn: 36000
                 });
-                console.log(token)
+
                 res.status(200).json({
                     token: token,
                     role: userFind.role
@@ -63,9 +63,24 @@ class UserController {
         res.status(200).json(order)
     }
 
+    showCart = async (req: Request, res: Response) => {
+        let userId = req['decode'].userId;
+        let order = await this.userService.findOrder(userId)
+        console.log(order)
+        res.status(200).json(order)
+    }
+
+
+
     deleteOrderDetail = async (req:Request,res:Response) => {
         await this.userService.deleteOrderDetail(req.params.id)
         res.status(200).json('Delete Success!')
+    }
+
+    updateOrderDetail = async (req:Request,res:Response) => {
+        let orderDetailId = req.params.id;
+
+
     }
 
 
@@ -86,5 +101,3 @@ class UserController {
 
 
 export default new UserController();
-
-// Nếu có token thì sẽ vào luôn còn không có thì vào trang khách

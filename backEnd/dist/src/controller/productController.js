@@ -29,7 +29,6 @@ class ProductController {
         this.findProductByBrand = async (req, res) => {
             let id = req.params.id;
             let products = await this.productService.getByBrand(id);
-            console.log(products);
             res.status(200).json(products);
         };
         this.addProduct = async (req, res) => {

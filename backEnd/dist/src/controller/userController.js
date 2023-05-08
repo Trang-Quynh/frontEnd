@@ -45,7 +45,6 @@ class UserController {
                     let token = jsonwebtoken_1.default.sign(payload, auth_1.SECRET, {
                         expiresIn: 36000
                     });
-                    console.log(token);
                     res.status(200).json({
                         token: token,
                         role: userFind.role
@@ -59,9 +58,18 @@ class UserController {
             let order = await this.userService.addOrderDetail(userId, productId);
             res.status(200).json(order);
         };
+        this.showCart = async (req, res) => {
+            let userId = req['decode'].userId;
+            let order = await this.userService.findOrder(userId);
+            console.log(order);
+            res.status(200).json(order);
+        };
         this.deleteOrderDetail = async (req, res) => {
             await this.userService.deleteOrderDetail(req.params.id);
             res.status(200).json('Delete Success!');
+        };
+        this.updateOrderDetail = async (req, res) => {
+            let orderDetailId = req.params.id;
         };
         this.userService = userService_1.default;
     }
