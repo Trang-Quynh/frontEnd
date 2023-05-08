@@ -59,7 +59,7 @@ class UserController {
     byProduct = async (req: Request, res: Response) => {
         let userId = req['decode'].userId;
         let productId = req.query.id
-        let order = await this.userService.addToOrder(userId, productId);
+        let order = await this.userService.addOrderDetail(userId, productId);
         res.status(200).json(order)
     }
 

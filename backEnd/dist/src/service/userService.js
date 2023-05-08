@@ -59,7 +59,7 @@ class UserService {
             });
             return order;
         };
-        this.addToOrder = async (idUser, idProduct) => {
+        this.addOrderDetail = async (idUser, idProduct) => {
             var _a, e_1, _b, _c;
             let order = await this.findOrder(idUser);
             let idOrder = order.id;

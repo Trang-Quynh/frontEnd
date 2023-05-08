@@ -121,7 +121,7 @@ class UserService {
 
 
 
-    addToOrder = async(idUser, idProduct) => {
+    addOrderDetail = async(idUser, idProduct) => {
         let order = await this.findOrder(idUser);
         let idOrder = order.id
         let findProduct = await productService.findProductById(idProduct)
@@ -174,6 +174,11 @@ class UserService {
         }
 
     }
+
+
+
+
+
 
 
 

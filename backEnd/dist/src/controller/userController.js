@@ -56,7 +56,7 @@ class UserController {
         this.byProduct = async (req, res) => {
             let userId = req['decode'].userId;
             let productId = req.query.id;
-            let order = await this.userService.addToOrder(userId, productId);
+            let order = await this.userService.addOrderDetail(userId, productId);
             res.status(200).json(order);
         };
         this.userService = userService_1.default;
