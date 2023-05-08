@@ -34,6 +34,10 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "image", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Product.prototype, "quantity", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => category_1.Category, (category) => { category.products; }),
     __metadata("design:type", category_1.Category)
 ], Product.prototype, "category", void 0);

@@ -56,11 +56,16 @@ class UserController {
     }
 
 
-    byProduct = async (req: Request, res: Response) => {
+    buyProduct = async (req: Request, res: Response) => {
         let userId = req['decode'].userId;
         let productId = req.query.id
         let order = await this.userService.addOrderDetail(userId, productId);
         res.status(200).json(order)
+    }
+
+    deleteOrderDetail = async (req:Request,res:Response) => {
+        await this.userService.deleteOrderDetail(req.params.id)
+        res.status(200).json('Delete Success!')
     }
 
 

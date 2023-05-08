@@ -53,11 +53,15 @@ class UserController {
                 }
             }
         };
-        this.byProduct = async (req, res) => {
+        this.buyProduct = async (req, res) => {
             let userId = req['decode'].userId;
             let productId = req.query.id;
             let order = await this.userService.addOrderDetail(userId, productId);
             res.status(200).json(order);
+        };
+        this.deleteOrderDetail = async (req, res) => {
+            await this.userService.deleteOrderDetail(req.params.id);
+            res.status(200).json('Delete Success!');
         };
         this.userService = userService_1.default;
     }

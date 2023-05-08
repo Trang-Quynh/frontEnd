@@ -15,6 +15,7 @@ const data_source_1 = require("../data-source");
 const order_1 = require("../entity/order");
 const oderDetail_1 = require("../entity/oderDetail");
 const productService_1 = __importDefault(require("./productService"));
+const product_1 = require("../entity/product");
 class UserService {
     constructor() {
         this.createNewUser = async (user) => {
@@ -62,11 +63,18 @@ class UserService {
         this.addOrderDetail = async (idUser, idProduct) => {
             var _a, e_1, _b, _c;
             let order = await this.findOrder(idUser);
+            console.log(order);
             let idOrder = order.id;
             let findProduct = await productService_1.default.findProductById(idProduct);
+            let findQuantity = findProduct[0].quantity -= 1;
             let findPrice = findProduct[0].price;
             try {
                 let orderDetails = await this.findOrderDetails(idOrder);
+                await this.productRepository.update({ id: findProduct[0].id }, { quantity: findQuantity }).then(() => {
+                    console.log('add success');
+                }).catch((err) => {
+                    console.log(err);
+                });
                 let findOrderDetail;
                 try {
                     for (var _d = true, orderDetails_1 = __asyncValues(orderDetails), orderDetails_1_1; orderDetails_1_1 = await orderDetails_1.next(), _a = orderDetails_1_1.done, !_a;) {
@@ -109,11 +117,8 @@ class UserService {
                 let orderTotalPrice = 0;
                 let newOrderDetails = await this.findOrderDetails(idOrder);
                 for (const item of newOrderDetails) {
-                    console.log(item.quantity);
-                    console.log(item.unitPrice);
                     orderTotalPrice += item.quantity * item.unitPrice;
                 }
-                console.log(orderTotalPrice);
                 order.orderTotalPrice = orderTotalPrice;
                 await this.orderRepository.update({ id: order.id }, { orderTotalPrice }).then(() => {
                     console.log('add success');
@@ -126,9 +131,13 @@ class UserService {
                 console.log(err);
             }
         };
+        this.deleteOrderDetail = async (id) => {
+            await this.orderDetailRepository.delete({ id: id });
+        };
         this.userRepository = data_source_1.AppDataSource.getRepository(user_1.User);
         this.orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
         this.orderDetailRepository = data_source_1.AppDataSource.getRepository(oderDetail_1.OrderDetail);
+        this.productRepository = data_source_1.AppDataSource.getRepository(product_1.Product);
     }
 }
 exports.default = new UserService();

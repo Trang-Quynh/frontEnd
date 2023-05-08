@@ -11,7 +11,8 @@ const loggedUserRouter = Router();
 
 loggedUserRouter.use(auth)
 loggedUserRouter.use(authorUser)
-loggedUserRouter.post('/product', userController.byProduct)
+loggedUserRouter.post('/product', userController.buyProduct);
+loggedUserRouter.delete('/cart/:id', userController.deleteOrderDetail);
 
 
 export default loggedUserRouter;

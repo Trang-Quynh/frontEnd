@@ -4,7 +4,8 @@ declare class UserController {
     constructor();
     signup: (req: Request, res: Response) => Promise<void>;
     login: (req: Request, res: Response) => Promise<void>;
-    byProduct: (req: Request, res: Response) => Promise<void>;
+    buyProduct: (req: Request, res: Response) => Promise<void>;
+    deleteOrderDetail: (req: Request, res: Response) => Promise<void>;
 }
 declare const _default: UserController;
 export default _default;

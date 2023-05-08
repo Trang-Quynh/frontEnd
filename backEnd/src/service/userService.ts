@@ -6,16 +6,19 @@ import {Column, ManyToOne, OneToMany} from "typeorm";
 import {OrderDetail} from "../entity/oderDetail";
 import {application} from "express";
 import productService from "./productService";
+import {Product} from "../entity/product";
 
 class UserService {
     private userRepository;
     private orderRepository;
     private orderDetailRepository;
+    private productRepository;
 
     constructor() {
         this.userRepository = AppDataSource.getRepository(User)
         this.orderRepository = AppDataSource.getRepository(Order)
         this.orderDetailRepository = AppDataSource.getRepository(OrderDetail)
+        this.productRepository = AppDataSource.getRepository(Product)
     }
 
 
@@ -123,11 +126,18 @@ class UserService {
 
     addOrderDetail = async(idUser, idProduct) => {
         let order = await this.findOrder(idUser);
+        console.log(order)
         let idOrder = order.id
-        let findProduct = await productService.findProductById(idProduct)
+        let findProduct = await productService.findProductById(idProduct);
+        let findQuantity = findProduct[0].quantity -= 1;
         let findPrice = findProduct[0].price
         try {
             let orderDetails = await this.findOrderDetails(idOrder);
+            await this.productRepository.update({id: findProduct[0].id}, {quantity: findQuantity}).then(()=>{
+                console.log('add success')
+            }).catch((err)=>{
+                console.log(err)
+            });
 
             let findOrderDetail;
             for await (const orderDetailPromise of orderDetails) {
@@ -155,11 +165,8 @@ class UserService {
             let orderTotalPrice = 0;
             let newOrderDetails = await this.findOrderDetails(idOrder);
             for (const item of newOrderDetails) {
-                console.log(item.quantity)
-                console.log(item.unitPrice)
                 orderTotalPrice += item.quantity * item.unitPrice
             }
-            console.log(orderTotalPrice)
             order.orderTotalPrice = orderTotalPrice;
             await this.orderRepository.update({id: order.id}, {orderTotalPrice}).then(()=>{
                 console.log('add success')
@@ -172,7 +179,10 @@ class UserService {
         } catch (err) {
             console.log(err)
         }
+    }
 
+    deleteOrderDetail = async (id) => {
+       await this.orderDetailRepository.delete({id:id})
     }
 
 

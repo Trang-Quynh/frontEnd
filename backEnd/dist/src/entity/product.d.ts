@@ -7,6 +7,7 @@ export declare class Product {
     name: string;
     price: number;
     image: string;
+    quantity: number;
     category: Category;
     color: Color;
     brand: Brand;

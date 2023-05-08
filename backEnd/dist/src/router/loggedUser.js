@@ -10,6 +10,7 @@ const auth_1 = require("../middleware/auth");
 const loggedUserRouter = (0, express_1.Router)();
 loggedUserRouter.use(auth_1.auth);
 loggedUserRouter.use(authorUser_1.authorUser);
-loggedUserRouter.post('/product', userController_1.default.byProduct);
+loggedUserRouter.post('/product', userController_1.default.buyProduct);
+loggedUserRouter.delete('/cart/:id', userController_1.default.deleteOrderDetail);
 exports.default = loggedUserRouter;
 //# sourceMappingURL=loggedUser.js.map
