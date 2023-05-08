@@ -44,14 +44,18 @@ class ProductController {
             res.status(200).json({ message: 'delete success' });
         };
         this.showFormAdd = async (req, res) => {
-            let categoryList = await this.categoryService.getAll();
-            res.status(200).json(categoryList);
+            let listCategory = await this.categoryService.getAll();
+            let listColor = await this.colorService.getAll();
+            let listBrand = await this.brandService.getAll();
+            res.status(200).json({ listCategory, listColor, listBrand });
         };
         this.showFormUpdate = async (req, res) => {
             let id = req.params.id;
             let product = await this.productService.findProductById(id);
-            let categoryList = await this.categoryService.getAll();
-            res.status(200).json({ product: product, category: categoryList });
+            let listCategory = await this.categoryService.getAll();
+            let listColor = await this.colorService.getAll();
+            let listBrand = await this.brandService.getAll();
+            res.status(200).json({ product, listCategory, listColor, listBrand });
         };
         this.updateProduct = async (req, res) => {
             let id = req.params.id;

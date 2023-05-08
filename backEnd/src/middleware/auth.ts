@@ -19,7 +19,6 @@ export const auth = (req, res, next) =>{
                         })
                     }else{
                         req.decode = data;
-
                         next()
                     }
                 })
