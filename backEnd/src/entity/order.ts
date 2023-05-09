@@ -14,7 +14,7 @@ export class Order{
     status: string;
     @Column()
     date: string;
-    @ManyToOne(()=>User, (user) =>{user.id})
+    @ManyToOne(()=>User, (user) =>user.orders)
     idUser: User
 
     @OneToMany(()=> OrderDetail, (orderDetail)=>orderDetail.idOrder)

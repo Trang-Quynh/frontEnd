@@ -86,6 +86,7 @@ class ProductService {
      return productNew
     }
     deleteProduct = async (id) => {
+        console.log(id,'Service')
         await this.productRepository.delete({id:id});
     }
 

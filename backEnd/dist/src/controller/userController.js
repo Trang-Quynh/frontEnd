@@ -54,22 +54,30 @@ class UserController {
         };
         this.buyProduct = async (req, res) => {
             let userId = req['decode'].userId;
-            let productId = req.query.id;
+            let productId = req.params.id;
             let order = await this.userService.addOrderDetail(userId, productId);
             res.status(200).json(order);
         };
         this.showCart = async (req, res) => {
             let userId = req['decode'].userId;
             let order = await this.userService.findOrder(userId);
-            console.log(order);
             res.status(200).json(order);
         };
         this.deleteOrderDetail = async (req, res) => {
-            await this.userService.deleteOrderDetail(req.params.id);
+            let idUser = req['decode'].userId;
+            console.log(idUser);
+            let idOrderDetail = req.params.id;
+            console.log(idOrderDetail);
+            await this.userService.deleteOrderDetailSevice(idUser, idOrderDetail);
             res.status(200).json('Delete Success!');
         };
         this.updateOrderDetail = async (req, res) => {
-            let orderDetailId = req.params.id;
+            let idUser = req['decode'].userId;
+            let idOrder = req.params.id;
+            let updateOrderDetail = req.body;
+            let total = await this.userService.updateOrderDetailService(idUser, idOrder, updateOrderDetail);
+            console.log(total);
+            res.status(200).json(total);
         };
         this.userService = userService_1.default;
     }

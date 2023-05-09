@@ -43,96 +43,136 @@ class UserService {
         };
         this.findOrder = async (userId) => {
             let order = await this.orderRepository.find({
-                relations: ['orderDetail', 'orderDetail.idOrder', 'orderDetail.idProduct'],
+                relations: ['orderDetail', 'orderDetail.idOrder', 'orderDetail.idProduct', 'idUser.orders'],
                 where: {
                     status: 'unpaid',
-                    idUser: userId
+                    idUser: {
+                        id: userId
+                    }
                 }
             });
             return order[0];
         };
         this.findOrderDetails = async (orderId) => {
-            let order = await this.orderDetailRepository.find({
+            let orderDetails = await this.orderDetailRepository.find({
                 relations: ['idOrder', 'idProduct'],
                 where: {
                     idOrder: orderId,
                 }
             });
-            return order;
+            return orderDetails;
+        };
+        this.findOrderDetail = async (orderDetailId) => {
+            let orderDetail = await this.orderDetailRepository.find({
+                relations: ['idOrder', 'idProduct'],
+                where: {
+                    id: orderDetailId,
+                }
+            });
+            return orderDetail;
         };
         this.addOrderDetail = async (idUser, idProduct) => {
             var _a, e_1, _b, _c;
             let order = await this.findOrder(idUser);
-            console.log(order);
             let idOrder = order.id;
             let findProduct = await productService_1.default.findProductById(idProduct);
-            let findQuantity = findProduct[0].quantity -= 1;
+            let findQuantity = findProduct[0].quantity - 1;
             let findPrice = findProduct[0].price;
-            try {
-                let orderDetails = await this.findOrderDetails(idOrder);
-                await this.productRepository.update({ id: findProduct[0].id }, { quantity: findQuantity }).then(() => {
-                    console.log('add success');
-                }).catch((err) => {
-                    console.log(err);
-                });
-                let findOrderDetail;
+            if (findQuantity < 0) {
+                console.log("het hang");
+            }
+            else {
                 try {
-                    for (var _d = true, orderDetails_1 = __asyncValues(orderDetails), orderDetails_1_1; orderDetails_1_1 = await orderDetails_1.next(), _a = orderDetails_1_1.done, !_a;) {
-                        _c = orderDetails_1_1.value;
-                        _d = false;
-                        try {
-                            const orderDetailPromise = _c;
-                            let orderDetail = await orderDetailPromise;
-                            if (orderDetail['idProduct'].id == idProduct) {
-                                findOrderDetail = orderDetail;
+                    await this.productRepository.update({ id: findProduct[0].id }, { quantity: findQuantity }).then(() => {
+                        console.log('update quantity product success');
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                    let orderDetails = await this.findOrderDetails(idOrder);
+                    let updateOrderDetail;
+                    try {
+                        for (var _d = true, orderDetails_1 = __asyncValues(orderDetails), orderDetails_1_1; orderDetails_1_1 = await orderDetails_1.next(), _a = orderDetails_1_1.done, !_a;) {
+                            _c = orderDetails_1_1.value;
+                            _d = false;
+                            try {
+                                const orderDetailPromise = _c;
+                                let orderDetail = await orderDetailPromise;
+                                if (orderDetail['idProduct'].id == idProduct) {
+                                    updateOrderDetail = orderDetail;
+                                }
+                            }
+                            finally {
+                                _d = true;
                             }
                         }
-                        finally {
-                            _d = true;
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (!_d && !_a && (_b = orderDetails_1.return)) await _b.call(orderDetails_1);
                         }
+                        finally { if (e_1) throw e_1.error; }
                     }
-                }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (!_d && !_a && (_b = orderDetails_1.return)) await _b.call(orderDetails_1);
+                    if (updateOrderDetail) {
+                        updateOrderDetail.quantity = updateOrderDetail.quantity + 1;
+                        updateOrderDetail.totalPrice = updateOrderDetail.quantity * updateOrderDetail.unitPrice;
+                        await this.orderDetailRepository.update({ id: updateOrderDetail.id }, updateOrderDetail);
                     }
-                    finally { if (e_1) throw e_1.error; }
+                    else {
+                        updateOrderDetail = {
+                            quantity: 1,
+                            unitPrice: findPrice,
+                            idOrder: order.id,
+                            idProduct: idProduct,
+                            totalPrice: 0
+                        };
+                        updateOrderDetail.totalPrice = updateOrderDetail.quantity * updateOrderDetail.unitPrice;
+                        await this.orderDetailRepository.save(updateOrderDetail);
+                    }
+                    let orderTotalPrice = 0;
+                    orderDetails = await this.findOrderDetails(idOrder);
+                    for (const item of orderDetails) {
+                        orderTotalPrice += item.quantity * item.unitPrice;
+                    }
+                    order.orderTotalPrice = orderTotalPrice;
+                    await this.orderRepository.update({ id: order.id }, { orderTotalPrice }).then(() => {
+                        console.log('add success');
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                    return order;
                 }
-                if (findOrderDetail) {
-                    findOrderDetail.quantity = findOrderDetail.quantity + 1;
-                }
-                else {
-                    findOrderDetail = {
-                        quantity: 1,
-                        unitPrice: findPrice,
-                        idOrder: order.id,
-                        idProduct: idProduct,
-                        totalPrice: 0
-                    };
-                }
-                findOrderDetail.totalPrice = findOrderDetail.quantity * findOrderDetail.unitPrice;
-                orderDetails.push(findOrderDetail);
-                await this.orderDetailRepository.update({ id: findOrderDetail.id }, findOrderDetail);
-                let orderTotalPrice = 0;
-                let newOrderDetails = await this.findOrderDetails(idOrder);
-                for (const item of newOrderDetails) {
-                    orderTotalPrice += item.quantity * item.unitPrice;
-                }
-                order.orderTotalPrice = orderTotalPrice;
-                await this.orderRepository.update({ id: order.id }, { orderTotalPrice }).then(() => {
-                    console.log('add success');
-                }).catch((err) => {
+                catch (err) {
                     console.log(err);
-                });
-                return order;
-            }
-            catch (err) {
-                console.log(err);
+                }
             }
         };
-        this.deleteOrderDetail = async (id) => {
-            await this.orderDetailRepository.delete({ id: id });
+        this.deleteOrderDetailSevice = async (idUser, idOrderDetail) => {
+            let orderDetail = await this.findOrderDetail(idOrderDetail);
+            let totalOrderDetail = orderDetail[0].totalPrice;
+            console.log(totalOrderDetail);
+            let order = await this.findOrder(idUser);
+            let totalOrder = order.orderTotalPrice;
+            console.log(totalOrder);
+            await this.orderDetailRepository.delete({ id: idOrderDetail });
+            order.orderTotalPrice = totalOrder - totalOrderDetail;
+            await this.orderRepository.update({ id: order.id }, { orderTotalPrice: order.orderTotalPrice });
+        };
+        this.updateOrderDetailService = async (idUser, idOrder, updateOrderDetail) => {
+            let orderDetail = await this.findOrderDetail(updateOrderDetail.id);
+            let totalOrderDetail = orderDetail[0].totalPrice;
+            console.log(totalOrderDetail, "gia hang truoc update");
+            let order = await this.findOrder(idUser);
+            let totalOrder = order.orderTotalPrice - totalOrderDetail;
+            console.log(totalOrder, "tong cua order truoc update");
+            await this.orderDetailRepository.update({ id: updateOrderDetail.id }, { quantity: updateOrderDetail.quantity, totalPrice: updateOrderDetail.totalPrice });
+            let orderDetailAfter = await this.findOrderDetail(updateOrderDetail.id);
+            let totalOrderDetailAfter = orderDetailAfter[0].totalPrice;
+            console.log(totalOrderDetailAfter);
+            let totalOrderAfter = totalOrder + totalOrderDetailAfter;
+            console.log(totalOrderAfter);
+            await this.orderRepository.update({ id: idOrder }, { orderTotalPrice: totalOrderAfter });
+            return totalOrderAfter;
         };
         this.userRepository = data_source_1.AppDataSource.getRepository(user_1.User);
         this.orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);

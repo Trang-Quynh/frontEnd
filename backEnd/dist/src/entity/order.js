@@ -32,7 +32,7 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "date", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => { user.id; }),
+    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => user.orders),
     __metadata("design:type", user_1.User)
 ], Order.prototype, "idUser", void 0);
 __decorate([

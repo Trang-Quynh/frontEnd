@@ -57,6 +57,7 @@ class ProductService {
             return productNew;
         };
         this.deleteProduct = async (id) => {
+            console.log(id, 'Service');
             await this.productRepository.delete({ id: id });
         };
         this.findProductById = async (id) => {

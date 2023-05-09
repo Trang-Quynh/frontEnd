@@ -12,7 +12,7 @@ const loggedUserRouter = Router();
 loggedUserRouter.use(auth)
 loggedUserRouter.use(authorUser)
 loggedUserRouter.get('/cart', userController.showCart);
-loggedUserRouter.post('/product', userController.buyProduct);
+loggedUserRouter.put('/product/:id', userController.buyProduct);
 loggedUserRouter.delete('/cart/:id', userController.deleteOrderDetail);
 loggedUserRouter.put('/cart/:id', userController.updateOrderDetail);
 
