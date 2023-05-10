@@ -189,6 +189,20 @@ class UserService {
     }
 
 
+    findOrderHistoryService = async(userId) =>{
+        let orders = await this.orderRepository.find({
+            relations: ['orderDetail', 'orderDetail.idOrder', 'orderDetail.idProduct', 'idUser.orders'],
+            where: {
+                status: 'paid',
+                idUser: {
+                    id: userId
+                }
+            }
+        });
+        return orders;
+    }
+
+
 
 
 

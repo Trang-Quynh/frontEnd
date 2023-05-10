@@ -83,7 +83,12 @@ class UserController {
             let idUser = req['decode'].userId;
             let idOrder = req.params.id;
             await this.userService.checkOutService(idOrder, idUser);
-            res.status(200);
+            res.status(200).json('checkout thanh cong');
+        };
+        this.findOrderHistory = async (req, res) => {
+            let idUser = req['decode'].userId;
+            let orders = await this.userService.findOrderHistoryService(idUser);
+            res.status(200).json(orders);
         };
         this.userService = userService_1.default;
     }

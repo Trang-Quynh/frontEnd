@@ -15,5 +15,6 @@ loggedUserRouter.put('/product/:id', userController_1.default.buyProduct);
 loggedUserRouter.delete('/cart/:id', userController_1.default.deleteOrderDetail);
 loggedUserRouter.put('/cart/:id', userController_1.default.updateOrderDetail);
 loggedUserRouter.put('/bill/:id', userController_1.default.checkOut);
+loggedUserRouter.get('/shoppingHistory', userController_1.default.findOrderHistory);
 exports.default = loggedUserRouter;
 //# sourceMappingURL=loggedUser.js.map

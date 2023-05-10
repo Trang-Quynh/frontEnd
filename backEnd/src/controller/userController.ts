@@ -95,8 +95,20 @@ class UserController {
         let idUser = req['decode'].userId;
         let idOrder = req.params.id
         await this.userService.checkOutService( idOrder,idUser);
-        res.status(200)
+        res.status(200).json('checkout thanh cong')
     }
+
+    findOrderHistory = async (req:Request,res:Response) => {
+        let idUser = req['decode'].userId;
+        let orders = await this.userService.findOrderHistoryService(idUser)
+        res.status(200).json(orders)
+    }
+
+
+
+
+
+
 
 
 

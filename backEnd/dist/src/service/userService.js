@@ -186,6 +186,18 @@ class UserService {
             let newOrder = await this.orderRepository.save(order);
             return newOrder;
         };
+        this.findOrderHistoryService = async (userId) => {
+            let orders = await this.orderRepository.find({
+                relations: ['orderDetail', 'orderDetail.idOrder', 'orderDetail.idProduct', 'idUser.orders'],
+                where: {
+                    status: 'paid',
+                    idUser: {
+                        id: userId
+                    }
+                }
+            });
+            return orders;
+        };
         this.userRepository = data_source_1.AppDataSource.getRepository(user_1.User);
         this.orderRepository = data_source_1.AppDataSource.getRepository(order_1.Order);
         this.orderDetailRepository = data_source_1.AppDataSource.getRepository(oderDetail_1.OrderDetail);

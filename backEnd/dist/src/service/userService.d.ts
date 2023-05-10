@@ -14,6 +14,7 @@ declare class UserService {
     deleteOrderDetailSevice: (idUser: any, idOrderDetail: any) => Promise<void>;
     updateOrderDetailService: (idUser: any, idOrder: any, updateOrderDetail: any) => Promise<any>;
     checkOutService: (idOrder: any, userId: any) => Promise<any>;
+    findOrderHistoryService: (userId: any) => Promise<any>;
 }
 declare const _default: UserService;
 export default _default;
