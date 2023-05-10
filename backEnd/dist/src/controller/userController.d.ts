@@ -8,6 +8,7 @@ declare class UserController {
     showCart: (req: Request, res: Response) => Promise<void>;
     deleteOrderDetail: (req: Request, res: Response) => Promise<void>;
     updateOrderDetail: (req: Request, res: Response) => Promise<void>;
+    checkOut: (req: Request, res: Response) => Promise<void>;
 }
 declare const _default: UserController;
 export default _default;

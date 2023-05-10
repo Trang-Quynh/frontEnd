@@ -91,6 +91,15 @@ class UserController {
         res.status(200).json(total)
     }
 
+    checkOut = async (req:Request,res:Response) => {
+        let idUser = req['decode'].userId;
+        let idOrder = req.params.id
+        await this.userService.checkOutService( idOrder,idUser);
+        res.status(200)
+    }
+
+
+
 
 
 

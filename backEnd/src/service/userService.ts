@@ -66,7 +66,7 @@ class UserService {
         let orderDetails = await this.orderDetailRepository.find({
             relations: [ 'idOrder', 'idProduct'],
             where: {
-                idOrder: orderId,
+                idOrder:{id:orderId}
             }
         });
         return orderDetails;
@@ -101,6 +101,7 @@ class UserService {
                 console.log(err)
             });
             let orderDetails = await this.findOrderDetails(idOrder);
+            console.log(111111,orderDetails,11)
             let updateOrderDetail;
             for await (const orderDetailPromise of orderDetails) {
                let orderDetail = await orderDetailPromise;
@@ -173,6 +174,18 @@ class UserService {
         await this.orderRepository.update({id:idOrder},{orderTotalPrice:totalOrderAfter})
 
        return totalOrderAfter
+    }
+
+    checkOutService= async ( idOrder,userId) => {
+        await this.orderRepository.update({id:idOrder},{status:"paid"})
+        let order = {
+            status: 'unpaid',
+            date: new Date(),
+            idUser: userId,
+            orderDetail:[]
+        }
+        let newOrder = await this.orderRepository.save(order)
+        return newOrder
     }
 
 

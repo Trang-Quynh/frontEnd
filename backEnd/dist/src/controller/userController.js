@@ -79,6 +79,12 @@ class UserController {
             console.log(total);
             res.status(200).json(total);
         };
+        this.checkOut = async (req, res) => {
+            let idUser = req['decode'].userId;
+            let idOrder = req.params.id;
+            await this.userService.checkOutService(idOrder, idUser);
+            res.status(200);
+        };
         this.userService = userService_1.default;
     }
 }

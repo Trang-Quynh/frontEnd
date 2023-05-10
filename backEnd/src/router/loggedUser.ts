@@ -15,6 +15,8 @@ loggedUserRouter.get('/cart', userController.showCart);
 loggedUserRouter.put('/product/:id', userController.buyProduct);
 loggedUserRouter.delete('/cart/:id', userController.deleteOrderDetail);
 loggedUserRouter.put('/cart/:id', userController.updateOrderDetail);
+loggedUserRouter.put('/bill/:id', userController.checkOut);
+
 
 
 
