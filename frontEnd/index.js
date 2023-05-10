@@ -1,15 +1,88 @@
+const html =`<div class="container" id="LoginSignup">
+
+   <div class="row">
+      <div class="col-xl-3 col-lg-4 col-md-5">
+         <div class="sidebar-categories">
+            <div class="head">Browse Categories</div>
+
+            <div id="category"></div>
+
+         </div>
+         <div class="sidebar-filter mt-50">
+            <div class="top-filter-head">Product Filters</div>
+            <div class="common-filter">
+               <div class="head">Brands</div>
+                  <div id="brand"></div>
+            </div>
+            <div class="common-filter">
+               <div class="head">Color</div>
+               <div id="color"></div>
+            </div>
+            <div class="common-filter">
+               <div class="head">Price</div>
+               <div class="price-range-area">
+                  <div id="price-range"></div>
+                  <div class="value-wrapper d-flex">
+                     <div class="price">Price:</div>
+                     <span>$</span>
+                     <div id="lower-value"></div>
+                     <div class="to">to</div>
+                     <span>$</span>
+                     <div id="upper-value"></div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="col-xl-9 col-lg-8 col-md-7">
+         <!-- Start Filter Bar -->
+         <div class="filter-bar d-flex flex-wrap align-items-center">
+            <div class="sorting">
+               <select>
+                  <option value="1">Default sorting</option>
+                  <option value="1">Default sorting</option>
+                  <option value="1">Default sorting</option>
+               </select>
+            </div>
+            <div class="sorting mr-auto">
+               <select>
+                  <option value="1">Show 12</option>
+                  <option value="1">Show 12</option>
+                  <option value="1">Show 12</option>
+               </select>
+            </div>
+            <div class="pagination">
+               <a href="#" class="prev-arrow"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></a>
+               <a href="#" class="active">1</a>
+               <a href="#">2</a>
+               <a href="#">3</a>
+               <a href="#" class="dot-dot"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></a>
+               <a href="#">6</a>
+               <a href="#" class="next-arrow"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
+            </div>
+         </div>
+         <!-- End Filter Bar -->
+         <!-- Start Best Seller -->
+         <section class="lattest-product-area pb-40 category-list">
+            <div id="product"></div>
+         </section>
+      </div>
+   </div>
+</div>`
+
+
 function showHome() {
     $.ajax({
         type: 'GET',
         url: 'http://localhost:3000/products',
-        headers:{
-            'Content-Type':'application/json',
+        headers: {
+            'Content-Type': 'application/json',
             Authorization: 'Bearer ' + localStorage.getItem('token')
         },
         success: (data) => {
             let listProduct = data.listProduct;
             let listCategory = data.listCategory;
-            let listBrand  = data.listBrand;
+            let listBrand = data.listBrand;
             let listColor = data.listColor
             showNavbarGuest()
             showProductUser(listProduct)
@@ -81,19 +154,9 @@ function show(){
     }
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function() {
     show()
 });
-
-
-
-
-
-
-
-
 
 
 
@@ -112,7 +175,7 @@ function showProductUser(listProduct){
                   </div>
                   <div class="prd-bottom">
 
-                    <a  class="social-info" onclick="byProduct(${item.id})" >
+                    <a  class="social-info" onclick="buyProduct(${item.id})" >
                       <span class="ti-bag"></span>
                       <p class="hover-text">add to bag</p>
                     </a>
@@ -138,11 +201,11 @@ function showProductUser(listProduct){
     $('#product').html(htmlProduct);
 }
 
-function byProduct(productId, productName){
+function buyProduct(productId, productName){
     console.log(1)
     $.ajax({
-        type: 'POST',
-        url: `http://localhost:3000/product?id=${productId}`,
+        type: 'PUT',
+        url: `http://localhost:3000/product/${productId}`,
         headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + localStorage.getItem('token')
@@ -153,7 +216,7 @@ function byProduct(productId, productName){
     })
 
 }
-// có thể truyền tham số là 1 string vào trong hàm không
+
 
 
 
@@ -173,18 +236,19 @@ function showProductAdmin(listProduct){
                     <h6 class="l-through">$210.00</h6>
                   </div>
                   <div class="prd-bottom">
-                    <a href="" class="social-info" onclick="">
+                    <a class="social-info" onclick="showFormUpdate(${item.id})">
                       <span class="lnr lnr-sync"></span>
                       <p class="hover-text">update</p>
                     </a>
-                    <a href="" class="social-info" onclick="">
+                    <a class="social-info" onclick="deleteProduct(${item.id})">
                       <span class="lnr lnr-move"></span>
                       <p class="hover-text">delete</p>
                     </a>
                   </div>
                 </div>
               </div>
-            </div>        
+            </div>     
+             
 `
     })
     htmlProduct += `</div>`
@@ -276,7 +340,7 @@ function filterByCategory(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
-            showFilterProduct(products)
+            showProductAdmin(products)
         }
     })
 }
@@ -289,7 +353,7 @@ function filterByColor(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
-            showFilterProduct(products)
+            showProductAdmin(products)
         }
     })
 }
@@ -302,7 +366,7 @@ function filterByBrand(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
-            showFilterProduct(products)
+            showProductAdmin(products)
         }
     })
 }
@@ -436,7 +500,7 @@ function showNavbarUser(){
                          aria-expanded="false">Contact</a>
                      </li>
                      <li class="nav-item submenu dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                          aria-expanded="false" onclick="logout()">Logout</a>
                      </li>
                   </ul>
@@ -466,19 +530,190 @@ function showCart(){
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + localStorage.getItem('token')
         },
-        success: function(data) {
+        success: function(order) {
 
+            let htmlCart = `<div id="replacee" class="Replaceee"><section class="cart_area">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th class="text-center align-middle py-3 px-0" style="width: 40px;"><a href="#" class="shop-tooltip float-none text-light" title="" data-original-title="Clear cart"><i class="ino ion-md-trash"></i></a></th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            order.orderDetail.forEach(item =>{
+                htmlCart += `
+                             <tr>
+                                <td>
+                                    <div class="media">
+                                        <div class="d-flex">
+                                            <img src="${item.idProduct.image}" alt="">
+                                        </div>
+                                        <div class="media-body">
+                                            <p>${item.idProduct.name}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h5 id="unitPrice${item.id}">${item.unitPrice}</h5>
+                                </td>
+                                <td>
+                                    <div class="product_count">
+                                        <input type="text" name="qty" id="sst${item.id}" maxlength="12" value="${item.quantity}" title="Quantity:"
+                                            class="input-text qty">
+                                        <button onclick="increaseQuantity(${order.id}, ${item.id})" class="increase items-count" type="button"><i class="lnr lnr-chevron-up"></i></button>
+                                        <button onclick="decreaseQuantity(${order.id}, ${item.id})" class="reduced items-count" type="button"><i class="lnr lnr-chevron-down"></i></button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h5 id="totalPrice${item.id}">${item.totalPrice}</h5>
+                                </td>
+                                <td class="text-center align-middle px-0">
+<!--                                    <form action="" method="POST">-->
+                                        <button class="shop-tooltip close float-none text-danger"  name="idDelete" onclick="deleteOrderDetail(${item.id})" data-original-title="Remove">×</button>
+<!--                                    </form>-->
+                                </td>
+                            </tr>
+`
+            })
+            htmlCart += `
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <h5>Subtotal</h5>
+                                </td>
+                                <td>
+                                <div id="totalPrice"><h5 >${order.orderTotalPrice}</h5></div>
+                                    
+                                </td>
+                            </tr>
+                            <tr class="out_button_area">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <div class="checkout_btn_inner d-flex align-items-center">
+                                        <a class="gray_btn" href="#">Continue Shopping</a>
+                                        <a class="primary-btn" href="checkout.html">Proceed to checkout</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div> 
 
-
-            $("#cart").replaceWith(orderHtml);
-
-
-
+            `
+            $("#LoginSignup").replaceWith(htmlCart);
 
         }
     });
 
 }
+
+
+function increaseQuantity(orderId, orderDetailId){
+    let result = document.getElementById(`sst${orderDetailId}`);
+    let unitPrice = parseInt(document.getElementById(`unitPrice${orderDetailId}`).innerHTML)
+    let sst = result.value;
+    if( !isNaN( sst )){
+        result.value++;
+        // return false;
+    }
+    let quantity = result.value;
+    let newTotalPrice = quantity * unitPrice;
+    let updateOrderDetail = {
+        id:orderDetailId,
+        quantity: quantity,
+        totalPrice: newTotalPrice
+    }
+    console.log(quantity)
+
+    document.getElementById(`totalPrice${orderDetailId}`).innerHTML = newTotalPrice;
+    $.ajax({
+        type: 'PUT',
+        url: `http://localhost:3000/cart/${orderId}`,
+        headers:{
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+
+        data: JSON.stringify(updateOrderDetail),
+        success: (total)=>{
+            let html = `<h5 >${total}</h5>`
+            $('#totalPrice').html(html)
+        }
+    })
+
+
+}
+
+
+
+
+
+function decreaseQuantity(orderId, orderDetailId){
+   let result = document.getElementById(`sst${orderDetailId}`);
+    let unitPrice = parseInt(document.getElementById(`unitPrice${orderDetailId}`).innerHTML)
+   let sst = result.value;
+   if( !isNaN( sst ) && sst > 0 ) {
+       result.value--;
+       // return false;
+   }
+    let quantity = result.value;
+    let newTotalPrice = quantity * unitPrice;
+    let updateOrderDetail = {
+        id:orderDetailId,
+        quantity: quantity,
+        totalPrice: newTotalPrice
+    }
+    console.log(quantity)
+    document.getElementById(`totalPrice${orderDetailId}`).innerHTML = newTotalPrice;
+    $.ajax({
+        type: 'PUT',
+        url: `http://localhost:3000/cart/${orderId}`,
+        headers:{
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+
+        data: JSON.stringify(updateOrderDetail),
+        success: (total)=>{
+            let html = `<h5 >${total}</h5>`
+            $('#totalPrice').html(html)
+        }
+    })
+
+}
+
+function deleteOrderDetail(orderDetailId){
+    if(confirm('Ban co chac chan muon xoa khong')) {
+        $.ajax({
+            type:'DELETE',
+            url: `http://localhost:3000/cart/${orderDetailId}`,
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            },
+            success: (message)=>{
+
+                $('#replacee').replaceWith(html)
+                showCart();
+            }
+        })
+    }
+}
+
 
 
 
@@ -493,7 +728,7 @@ function showNavbarAdmin(){
       <div class="main_menu">
          <nav class="navbar navbar-expand-lg navbar-light main_box">
             <div class="container">
-               <!-- Brand and toggle get grouped for better mobile display -->
+             
                <a class="navbar-brand logo_h" href="index.html"><img src="img/logo.png" alt=""></a>
                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -504,7 +739,7 @@ function showNavbarAdmin(){
                <!-- Collect the nav links, forms, and other content for toggling -->
                <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
                   <ul class="nav navbar-nav menu_nav ml-auto">
-                     <li class="nav-item"><a class="nav-link" href="index.html">Add Product</a></li>
+                     <li class="nav-item"><a class="nav-link" onclick="showFormAdd()">Add Product</a></li>
 
                      <li class="nav-item submenu dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -533,180 +768,274 @@ function showNavbarAdmin(){
 
 
 
+function showFormAdd(){
+    $.ajax({
+        type: 'GET',
+        url: `http://localhost:3000/products/add`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        success: function(data) {
+            let listCategoryOptions = data.listCategory.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+            let listColorOptions = data.listColor.map(item => `<option value="${item.id}">${item.color}</option>`).join('');
+            let listBrandOptions = data.listBrand.map(item => `<option value="${item.id}">${item.brand}</option>`).join('');
 
-// function showFormAdd(){
-//     $.ajax({
-//         type: 'GET',
-//         url: `http://localhost:3000/products/add`,
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Authorization: 'Bearer ' + localStorage.getItem('token')
-//         },
-//         success: function(data) {
-//             console.log(data)
-//             let htmlFormAdd = `
-//   <div class="form-group">
-//     <label for="exampleFormControlInput1">name</label>
-//     <input type="text" class="form-control" id="name" placeholder="name">
-//   </div>
-//     <div class="form-group">
-//     <label for="exampleFormControlInput1">price</label>
-//     <input type="text" class="form-control" id="price" placeholder="price" required>
-//   </div>
-//    <div class="form-group">
-//     <label for="exampleFormControlFile1" >image</label>
-//     <input type="file" class="form-control-file" onchange="uploadImage(event)" >
-//   </div>
-//      <div class="form-group">
-//     <label for="exampleFormControlFile1">imageLink</label>
-//     <input type="text" class="form-control-file" id="image" >
-//   </div>
-// <div id="imgDiv"></div>
-//  <div class="form-group">
-//     <label for="exampleFormControlSelect1" >category</label>
-//     <select class="form-control" id="category" >`
-//             data.category.forEach(item =>{
-//                 htmlFormAdd += `<option value="${item.id}">${item.name}</option>`
-//             })
-//             htmlFormAdd += `</select>
-//             </div>
-//             <button type="submit" onclick="add()">submit</button>`
-//             $('#product').html(htmlFormAdd)
-//         }
-//     });
-// }
-//
-//
-//
-//
-//
-//
-// function add(){
-//     let price = $('#price').val();
-//     if(price === ''){
-//         alert('vui long nhap price');
-//         return false;
-//     }
-//     let image = $('#image').val();
-//     if(image === ''){
-//         alert('vui long chon file');
-//         return false;
-//     }
-//     let name = $('#name').val()
-//     if(name === ''){
-//         alert('vui long nhap name');
-//         return false;
-//     }
-//     let category = $('#category').val()
-//     let product = {
-//         name: name,
-//         price: price,
-//         image: image,
-//         category: category
-//     }
-//     $.ajax({
-//         type: 'POST',
-//         url: 'http://localhost:3000/products/add',
-//         headers:{
-//             'Content-Type':'application/json',
-//             Authorization: 'Bearer ' + localStorage.getItem('token')
-//         },
-//         data: JSON.stringify(product),
-//         success: (message) => {
-//             console.log(message)
-//             showHome()
-//         }
-//     })
-// }
-//
-// function showFormUpdate(id){
-//     $.ajax({
-//         type: 'GET',
-//         url: `http://localhost:3000/products/${id}`,
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Authorization: 'Bearer ' + localStorage.getItem('token')
-//         },
-//         success: function(data) {
-//             console.log(data)
-//             let htmlFormUpdate = `
-//  <div class="form-group">
-//     <label for="exampleFormControlInput1">id</label>
-//     <input type="text" class="form-control" id="id" value="${data.product[0].id}">
-//   </div>
-//   <div class="form-group">
-//     <label for="exampleFormControlInput1">name</label>
-//     <input type="text" class="form-control" id="name" value="${data.product[0].name}">
-//   </div>
-//     <div class="form-group">
-//     <label for="exampleFormControlInput1">price</label>
-//     <input type="text" class="form-control" id="price" value="${data.product[0].price}" >
-//   </div>
-//    <div class="form-group">
-//     <label for="exampleFormControlFile1" >image</label>
-//     <input type="file" class="form-control-file" onchange="uploadImage(event)">
-//   </div>
-//      <div class="form-group">
-//     <label for="exampleFormControlFile1">imageLink</label>
-//     <input type="text" class="form-control-file" id="image" >
-//   </div>
-// <div id="imgDiv"></div>
-//  <div class="form-group">
-//     <label for="exampleFormControlSelect1" >category</label>
-//     <select class="form-control" id="category" >`
-//             data.category.forEach(item =>{
-//                 htmlFormUpdate += `<option value="${item.id}">${item.name}</option>`
-//             })
-//             htmlFormUpdate += `</select>
-//             </div>
-//             <button type="submit" onclick="update()">submit</button>`
-//             $('#product').html(htmlFormUpdate)
-//         }
-//     });
-// }
+            let htmlFormAdd = `<div id="htmlFormAdd" class="Replaceee">
+  <section class="login_box_area section_gap">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="login_box_img" >
+          <div id="imgDiv">
+         <img class="img-fluid" src="https://cdn.pixabay.com/photo/2013/07/12/17/21/clock-152067_1280.png" alt="">
+        </div>
+
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="login_form_inner">
+          <h3>Add new product</h3>
+
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="name" placeholder="name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'name'">
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="price" placeholder="price" onfocus="this.placeholder = ''" onblur="this.placeholder = 'price'">
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="quantity" placeholder="quantity" onfocus="this.placeholder = ''" onblur="this.placeholder = 'quantity'">
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="file" class="form-control" id="" onfocus="this.placeholder = ''" onblur="this.placeholder = ''"  onchange="uploadImage(event)" >
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="image" >
+          </div>
+          <div class="form-group">
+            <h3>category</h3>
+            <select class="form-control" id="category" >
+              ${listCategoryOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <h3>color</h3>
+            <select class="form-control" id="color" >
+              ${listColorOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <h3>brand</h3>
+            <select class="form-control" id="brand" >
+              ${listBrandOptions}
+            </select>
+          </div>
+          <div class="col-md-12 form-group">
+            <button type="submit" value="submit" class="primary-btn" onclick="add()">ADD</button>
+          </div>
+`
+            htmlFormAdd += `
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>`
+            $('#LoginSignup').html(htmlFormAdd)
+        }
+    });
+}
 
 
 
-// function update(){
-//     let id = $('#id').val();
-//     let price = $('#price').val();
-//     if(price === ''){
-//         alert('vui long nhap price');
-//         return false;
-//     }
-//     let image = $('#image').val();
-//     if(image === ''){
-//         alert('vui long chon file');
-//         return false;
-//     }
-//     let name = $('#name').val();
-//     if(name === ''){
-//         alert('vui long nhap name');
-//         return false;
-//     }
-//     let category = $('#category').val();
-//     let productToUpdate = {
-//         id: id,
-//         name: name,
-//         price: price,
-//         image: image,
-//         category: category
-//     }
-//     $.ajax({
-//         type: 'PUT',
-//         url: `http://localhost:3000/products/${id}`,
-//         headers:{
-//             'Content-Type': 'application/json',
-//             Authorization: 'Bearer ' + localStorage.getItem('token')
-//         },
-//         data:JSON.stringify(productToUpdate),
-//         success: (message)=>{
-//             console.log('message' + message)
-//             showHome()
-//         }
-//     })
-// }
-//
+
+
+
+function add(){
+    let price = $('#price').val();
+    if(price === ''){
+        alert('vui long nhap price');
+        return false;
+    }
+    let image = $('#image').val();
+    if(image === ''){
+        alert('vui long chon file');
+        return false;
+    }
+    let name = $('#name').val()
+    if(name === ''){
+        alert('vui long nhap name');
+        return false;
+    }
+    let quantity = $('#quantity').val()
+    if(quantity === ''){
+        alert('Vui long nhap price');
+        return false;
+    }
+    let category = $('#category').val()
+    let color = $('#color').val()
+    let brand = $('#brand').val()
+    let product = {
+        name: name,
+        price: price,
+        quantity: quantity,
+        image: image,
+        category: category,
+        color: color,
+        brand: brand
+    }
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost:3000/products/add',
+        headers:{
+            'Content-Type':'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        data: JSON.stringify(product),
+        success: (message) => {
+
+
+            $('#htmlFormAdd').replaceWith(html);
+            showHomeAdmin()
+        }
+    })
+}
+
+
+
+
+
+
+function showFormUpdate(id){
+    $.ajax({
+        type: 'GET',
+        url: `http://localhost:3000/products/update/${id}`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        success: function(data) {
+            let listCategoryOptions = data.listCategory.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+            let listColorOptions = data.listColor.map(item => `<option value="${item.id}">${item.color}</option>`).join('');
+            let listBrandOptions = data.listBrand.map(item => `<option value="${item.id}">${item.brand}</option>`).join('');
+
+            let htmlFormUpdate = ` <div id="htmlFormUpdate" class="Replaceee">
+  <section class="login_box_area section_gap">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="login_box_img">
+        <div id="imgDiv">
+         <img class="img-fluid" src="${data.product[0].image}" alt="">
+        </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="login_form_inner">
+          <h3>Update product</h3>
+
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="name" value="${data.product[0].name}">
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="price" value="${data.product[0].price}">
+          </div>
+           <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="quantity" value="${data.product[0].quantity}">
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="file" class="form-control" onchange="uploadImage(event)" >
+          </div>
+          <div class="col-md-12 form-group">
+            <input type="text" class="form-control" id="image" >
+          </div>
+          <div class="form-group">
+            <h3>category</h3>
+            <select class="form-control" id="category" >
+              ${listCategoryOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <h3>color</h3>
+            <select class="form-control" id="color" >
+              ${listColorOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <h3>brand</h3>
+            <select class="form-control" id="brand" >
+              ${listBrandOptions}
+            </select>
+          </div>
+          <div class="col-md-12 form-group">
+            <button type="submit" value="submit" class="primary-btn" onclick="update(${data.product[0].id})">Update</button>
+          </div>
+`
+            htmlFormUpdate += `
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>`
+            $('#LoginSignup').html(htmlFormUpdate)
+
+
+        }
+    });
+}
+
+function update(id){
+    let price = $('#price').val();
+    if(price === ''){
+        alert('vui long nhap price');
+        return false;
+    }
+    let image = $('#image').val();
+    if(image === ''){
+        alert('vui long chon file');
+        return false;
+    }
+    let name = $('#name').val();
+    if(name === ''){
+        alert('vui long nhap name');
+        return false;
+    }
+    let quantity = $('#quantity').val();
+    if(quantity === ''){
+        alert('vui long nhap quantity');
+        return false;
+    }
+
+    let category = $('#category').val();
+    let color = $('#color').val();
+    let brand = $('#brand').val();
+    let productToUpdate = {
+        name: name,
+        price: price,
+        quantity: quantity,
+        image: image,
+        category: category,
+        color:color,
+        brand:brand
+    }
+    $.ajax({
+        type: 'PUT',
+        url: `http://localhost:3000/products/update/${id}`,
+        headers:{
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        data:JSON.stringify(productToUpdate),
+        success: (message)=>{
+            console.log('message' + message)
+        $('#htmlFormUpdate').replaceWith(html)
+
+            showHomeAdmin()
+        }
+    })
+}
+
 
 function showNavbarSignInSignUp(){
     let htmlnavbarSignUp = `
@@ -714,7 +1043,7 @@ function showNavbarSignInSignUp(){
       <div class="main_menu">
          <nav class="navbar navbar-expand-lg navbar-light main_box">
             <div class="container">
-               <!-- Brand and toggle get grouped for better mobile display -->
+          
                <a class="navbar-brand logo_h" href="index.html"><img src="img/logo.png" alt=""></a>
                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -722,7 +1051,7 @@ function showNavbarSignInSignUp(){
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                </button>
-               <!-- Collect the nav links, forms, and other content for toggling -->
+              
                <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
                   <ul class="nav navbar-nav menu_nav ml-auto">
                      <li class="nav-item"><a class="nav-link" href="index.html">Home Page</a></li>
@@ -760,7 +1089,7 @@ function showFormSignUp(){
         <div class="col-lg-6">
           <div class="login_form_inner">
             <h3>Sign up to enter</h3>
-<!--            <form class="row login_form" action="contact_process.php" method="post" id="contactForm" novalidate="novalidate">-->
+
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="username"  placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'">
               </div>
@@ -778,7 +1107,7 @@ function showFormSignUp(){
               </div>
               <div class="col-md-12 form-group">
                 <button  value="submit" class="primary-btn" onclick="signup()">Signup</button>
-<!--                <a href="#">Forgot Password?</a>-->
+
               </div>
             </form>
           </div>
@@ -830,7 +1159,7 @@ function showFormLogin(){
             <img class="img-fluid" src="img/login.jpg" alt="">
             <div class="hover">
               <h4>New to our website?</h4>
-              <p>There are advances being made in science and technology everyday, and a good example of this is the</p>
+              <p>There are advances being made in science and technology every day, and a good example of this is the</p>
               <button class="primary-btn" onclick="showFormSignUp()">Create an Account</button>
             </div>
           </div>
@@ -838,7 +1167,7 @@ function showFormLogin(){
         <div class="col-lg-6">
           <div class="login_form_inner">
             <h3>Log in to enter</h3>
-<!--            <form class="row login_form" action="contact_process.php" method="post" id="contactForm" novalidate="novalidate">-->
+
               <div class="col-md-12 form-group">
                 <input type="text" class="form-control" id="username"  placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'">
               </div>
@@ -853,7 +1182,7 @@ function showFormLogin(){
               </div>
               <div class="col-md-12 form-group">
                 <button  value="submit" class="primary-btn" onclick="login()">Signup</button>
-<!--                <a href="#">Forgot Password?</a>-->
+
               </div>
             </form>
           </div>
@@ -899,7 +1228,9 @@ function login(){
                 }
 
                 let replaceHtml = `
-   <div class="row" id="cart">
+   <div class="container" id="LoginSignup">
+
+  <div class="row">
     <div class="col-xl-3 col-lg-4 col-md-5">
       <div class="sidebar-categories">
         <div class="head">Browse Categories</div>
@@ -934,7 +1265,7 @@ function login(){
       </div>
     </div>
     <div class="col-xl-9 col-lg-8 col-md-7">
-      <!-- Start Filter Bar -->
+     
       <div class="filter-bar d-flex flex-wrap align-items-center">
         <div class="sorting">
           <select>
@@ -960,13 +1291,13 @@ function login(){
           <a href="#" class="next-arrow"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
         </div>
       </div>
-      <!-- End Filter Bar -->
-      <!-- Start Best Seller -->
+  
       <section class="lattest-product-area pb-40 category-list">
         <div id="product"></div>
       </section>
     </div>
-  </div> `
+  </div>
+</div> `
                 if(role === 'user'){
                     $("#replace").replaceWith(replaceHtml);
                    showHomeUser()
@@ -985,22 +1316,26 @@ function login(){
 
 function deleteProduct(idDelete){
     console.log(1)
-    confirm('Ban cho chac chan muon xoa khong');
-    console.log(localStorage.getItem('token'))
-    $.ajax({
-        type:'DELETE',
-        url: `http://localhost:3000/products/${idDelete}`,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        },
-        success: (message)=>{
-            console.log(message);
-            showHome()
-        }
-    })
-}
+    if(confirm('Ban co muon xoa khong')) {
+        console.log(localStorage.getItem('token'))
+        $.ajax({
+            type:'DELETE',
+            url: `http://localhost:3000/products/delete/${idDelete}`,
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            },
+            success: (message)=>{
+                console.log(message);
+                showHomeAdmin()
+            }
+        })
+    }
 
+
+}
+// Chuyển tất cả các id của các div của các form thành cùng một name
+// trước khi logout thay html vào id của các thẻ div
 
 function logout(){
     if(!localStorage.token){
@@ -1009,6 +1344,7 @@ function logout(){
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         alert('Da dang xuat thanh cong')
+        $(".Replaceee").replaceWith(html);
         showHome()
     }
 }
@@ -1040,7 +1376,7 @@ function uploadImage(e) {
             }
         }, function () {
             let downloadURL = uploadTask.snapshot.downloadURL;
-            document.getElementById('imgDiv').innerHTML = `<img src="${downloadURL}" alt="" style='width: 50px; height:50px'>`
+            document.getElementById('imgDiv').innerHTML = `<img className="img-fluid" src="${downloadURL}" alt="">`
             document.getElementById('image').value = downloadURL
         });
 }
@@ -1105,3 +1441,86 @@ $("#search").on("keyup", function(event) {
         });
     }
 });
+
+//Check out
+
+function showOrderCheckOut(){
+    console.log(1)
+    $.ajax({
+        type: 'GET',
+        url: `http://localhost:3000/cart`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        success: function(order) {
+            // let listCategoryOptions = data.listCategory.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+            console.log(order)
+            let listOrderDetails = order.orderDetail.map(item => `<li><a href="#">${item.idProduct.name} <span class="middle">X ${item.quantity}</span> <span class="last">${item.totalPrice}</span></a></li>`).join('');
+            console.log(listOrderDetails)
+            let htmlCart = `<div class="order_box">
+                            <h2>Your Order</h2>
+                            <ul class="list">
+                                <li><a href="#">Product <span>Total</span></a></li>
+                                ${listOrderDetails}
+                            </ul>
+                            <ul class="list list_2">
+                                
+                                <li><a href="#">Total <span>${order.orderTotalPrice}</span></a></li>
+                            </ul>
+                            <div class="payment_item">
+                                <div class="radion_btn">
+                                    <input type="radio" id="f-option5" name="selector">
+                                    <label for="f-option5">Check payments</label>
+                                    <div class="check"></div>
+                                </div>
+                                <p>Please send a check to Store Name, Store Street, Store Town, Store State / County,
+                                    Store Postcode.</p>
+                            </div>
+                            <div class="payment_item active">
+                                <div class="radion_btn">
+                                    <input type="radio" id="f-option6" name="selector">
+                                    <label for="f-option6">Paypal </label>
+                                    <img src="img/product/card.jpg" alt="">
+                                    <div class="check"></div>
+                                </div>
+                                <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal
+                                    account.</p>
+                            </div>
+                            <div class="creat_account">
+                                <input type="checkbox" id="f-option4" name="selector">
+                                <label for="f-option4">I’ve read and accept the </label>
+                                <a href="#">terms & conditions*</a>
+                            </div>
+                            <a class="primary-btn" href="index.html" onclick="checkOut(${order.id})">Proceed to Paypal</a>
+                        </div>`;
+
+
+            $("#order").replaceWith(htmlCart);
+
+        }
+    });
+
+}
+
+
+
+function checkOut(orderId){
+    alert("Mua hang thanh cong")
+    $.ajax({
+        type: 'PUT',
+        url: `http://localhost:3000/bill/${orderId}`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        success: function() {
+
+        }
+    });
+
+}
+
+
+
+
