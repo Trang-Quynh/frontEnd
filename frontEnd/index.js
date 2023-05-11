@@ -125,7 +125,6 @@ function showHomeUser() {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         },
         success: (data) => {
-            console.log(data)
             let listProduct = data.listProduct;
             let listCategory = data.listCategory;
             let listBrand  = data.listBrand;
@@ -170,12 +169,15 @@ function showProductUser(listProduct){
                 <div class="product-details">
                   <h6>${item.name}</h6>
                   <div class="price">
-                    <h6>${item.price}</h6>
-                    <h6 class="l-through">$210.00</h6>
+                    <h6>$ ${item.price}</h6>
+                    <br>
+                    <h6 style="color: #e01919;" >Quantity: </h6>
+                    <h6 id="quantityy${item.id}" class="" style="color: #e01919;" >${item.quantity}</h6>
+                    
                   </div>
                   <div class="prd-bottom">
 
-                    <a  class="social-info" onclick="buyProduct(${item.id})" >
+                    <a  class="social-info"  onclick="buyProduct(${item.id})" >
                       <span class="ti-bag"></span>
                       <p class="hover-text">add to bag</p>
                     </a>
@@ -201,19 +203,39 @@ function showProductUser(listProduct){
     $('#product').html(htmlProduct);
 }
 
-function buyProduct(productId, productName){
-    console.log(1)
-    $.ajax({
-        type: 'PUT',
-        url: `http://localhost:3000/product/${productId}`,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        },
-        success: (data)=>{
-            console.log(data)
+function buyProduct(productId){
+    let role = localStorage.getItem('role')
+    console.log(role)
+    if(role === null) {
+        showFormLogin()
+    } else {
+
+
+        console.log(1)
+        let quantity = document.getElementById(`quantityy${productId}`).innerHTML
+        if(quantity != 0) {
+        quantity -= 1;} else {
+            alert("het hang")
         }
-    })
+
+        $.ajax({
+            type: 'PUT',
+            url: `http://localhost:3000/product/${productId}`,
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            },
+            success: (data)=>{
+                console.log(data)
+                document.getElementById(`quantityy${productId}`).innerHTML = quantity
+            }
+        })
+    }
+
+
+
+
+
 
 }
 
@@ -232,8 +254,10 @@ function showProductAdmin(listProduct){
                 <div class="product-details">
                   <h6>${item.name}</h6>
                   <div class="price">
-                    <h6>${item.price}</h6>
-                    <h6 class="l-through">$210.00</h6>
+                    <h6>$ ${item.price}</h6>
+                    <br>
+                    <h6 class="" style="color: #e01919;">Quantity: ${item.quantity}</h6>
+                    
                   </div>
                   <div class="prd-bottom">
                     <a class="social-info" onclick="showFormUpdate(${item.id})">
@@ -340,8 +364,12 @@ function filterByCategory(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
+            let role = localStorage.getItem('role')
+            if(role === 'user') {
+                showProductUser(products)
+            } else {
             showProductAdmin(products)
-        }
+        }}
     })
 }
 
@@ -353,8 +381,12 @@ function filterByColor(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
-            showProductAdmin(products)
-        }
+            let role = localStorage.getItem('role')
+            if(role === 'user') {
+                showProductUser(products)
+            } else {
+                showProductAdmin(products)
+            }}
     })
 }
 
@@ -366,8 +398,12 @@ function filterByBrand(id){
             'Content-Type': 'application/json'
         },
         success: (products) => {
-            showProductAdmin(products)
-        }
+            let role = localStorage.getItem('role')
+            if(role === 'user') {
+                showProductUser(products)
+            } else {
+                showProductAdmin(products)
+            }}
     })
 }
 
@@ -436,6 +472,10 @@ function showNavbarGuest(){
                </button>
                <!-- Collect the nav links, forms, and other content for toggling -->
                <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                 <div class="input-group rounded" style="float: right; width: 30% ;margin-left: 500px; margin-right: 20px">
+                 <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+                </div>
+                <div style="float: right; width: 50%">
                   <ul class="nav navbar-nav menu_nav ml-auto">
                      <li class="nav-item submenu dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -451,19 +491,12 @@ function showNavbarGuest(){
                          aria-expanded="false">Contact</a>
                      </li>
                   </ul>
+                  </div>
                </div>
             </div>
          </nav>
       </div>
-      <div class="search_input" id="search_input_box">
-      <div class="container">
-      <form class="d-flex justify-content-between">
-        <input type="text" class="form-control" id="search_input" placeholder="Search Here">
-        <button type="submit" class="btn"></button>
-        <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-      </form>
-    </div>
-  </div>
+
 
     `
     $('#navbar').html(htmlnavbar)
@@ -489,10 +522,28 @@ function showNavbarUser(){
                </button>
                <!-- Collect the nav links, forms, and other content for toggling -->
                <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+                 <div class="input-group rounded" style="float: right; width: 30% ;margin-left: 200px; margin-right: 20px">
+                 <input type="text" id="search" class="form-control rounded searchh" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+                 <button onclick="search()" style="
+    width: 35px;
+    background-color: #ffb318;
+    border: none;
+    border-radius: 4px;
+    margin-left: 3px;
+    padding-bottom: 5px;
+">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg>
+</button>
+                </div>
+                <div style="float: right; width: 50%">
+                  
+          
                   <ul class="nav navbar-nav menu_nav ml-auto">
                      <li class="nav-item"><a class="nav-link" onclick="showCart()">Cart</a></li>
                      <li class="nav-item submenu dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                        <a onclick="showShoppingHistory()" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                          aria-expanded="false">Shopping history</a>
                      </li>
                      <li class="nav-item submenu dropdown">
@@ -504,25 +555,20 @@ function showNavbarUser(){
                          aria-expanded="false" onclick="logout()">Logout</a>
                      </li>
                   </ul>
+                  
+                  </div>
                </div>
             </div>
          </nav>
       </div>
-      <div class="search_input" id="search_input_box">
-      <div class="container">
-      <form class="d-flex justify-content-between">
-        <input type="text" class="form-control" id="search_input" placeholder="Search Here">
-        <button type="submit" class="btn"></button>
-        <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-      </form>
-    </div>
-  </div>
+      
 
     `
     $('#navbar').html(htmlnavbar)
 }
 
 function showCart(){
+    console.log(1)
         $.ajax({
         type: 'GET',
         url: `http://localhost:3000/cart`,
@@ -553,7 +599,7 @@ function showCart(){
                                 <td>
                                     <div class="media">
                                         <div class="d-flex">
-                                            <img src="${item.idProduct.image}" alt="">
+                                            <img src="${item.idProduct.image}" alt="" style="  width: 200px;heigth: 50px">
                                         </div>
                                         <div class="media-body">
                                             <p>${item.idProduct.name}</p>
@@ -600,8 +646,8 @@ function showCart(){
                                 <td></td>
                                 <td>
                                     <div class="checkout_btn_inner d-flex align-items-center">
-                                        <a class="gray_btn" href="#">Continue Shopping</a>
-                                        <a class="primary-btn" href="checkout.html">Proceed to checkout</a>
+                                       <a class="primary-btn" onclick="continueShopping()">Continute Shopping</a>
+                                       <a class="primary-btn" onclick="showOrderCheckOut()">Proceed to checkout</a>
                                     </div>
                                 </td>
                             </tr>
@@ -614,10 +660,20 @@ function showCart(){
     </div> 
 
             `
+            $("#htmlShoppingHistory").replaceWith(html)
+            $("#htmlFormCheckout").replaceWith(html)
             $("#LoginSignup").replaceWith(htmlCart);
-
         }
     });
+
+
+}
+
+function continueShopping(){
+
+    $("#replacee").replaceWith(html);
+    showHomeUser()
+
 
 }
 
@@ -637,7 +693,7 @@ function increaseQuantity(orderId, orderDetailId){
         quantity: quantity,
         totalPrice: newTotalPrice
     }
-    console.log(quantity)
+
 
     document.getElementById(`totalPrice${orderDetailId}`).innerHTML = newTotalPrice;
     $.ajax({
@@ -677,7 +733,7 @@ function decreaseQuantity(orderId, orderDetailId){
         quantity: quantity,
         totalPrice: newTotalPrice
     }
-    console.log(quantity)
+
     document.getElementById(`totalPrice${orderDetailId}`).innerHTML = newTotalPrice;
     $.ajax({
         type: 'PUT',
@@ -707,7 +763,7 @@ function deleteOrderDetail(orderDetailId){
             },
             success: (message)=>{
 
-                $('#replacee').replaceWith(html)
+                $('#').replaceWith(html)
                 showCart();
             }
         })
@@ -750,15 +806,7 @@ function showNavbarAdmin(){
             </div>
          </nav>
       </div>
-      <div class="search_input" id="search_input_box">
-      <div class="container">
-      <form class="d-flex justify-content-between">
-        <input type="text" class="form-control" id="search_input" placeholder="Search Here">
-        <button type="submit" class="btn"></button>
-        <span class="lnr lnr-cross" id="close_search" title="Close Search"></span>
-      </form>
-    </div>
-  </div>
+  
 
     `
     $('#navbar').html(htmlnavbar)
@@ -1078,10 +1126,9 @@ function showFormSignUp(){
       <div class="row">
         <div class="col-lg-6">
           <div class="login_box_img">
-            <img class="img-fluid" src="img/login.jpg" alt="">
+            <img class="img-fluid" src="https://congthuong-cdn-50.mastercms.vn/stores/news_dataimages/2023/012023/14/14/dong-ho-tuan-hung-520230114144205.jpg?rt=20230114145417" alt="">
             <div class="hover">
-              <h4>abc</h4>
-              <p>There are advances being made in science and technology everyday, and a good example of this is the</p>
+              
               <button class="primary-btn" onclick="showFormLogin()">Have you have an account</button>
             </div>
           </div>
@@ -1135,7 +1182,6 @@ function signup(){
         },
         data: JSON.stringify(user),
         success: (message)=>{
-            console.log(message)
             if (message === 'Đã có tài khoản') {
                 alert('tai khoan da co');
             } else if(message === 'Dien thieu'){
@@ -1156,10 +1202,8 @@ function showFormLogin(){
       <div class="row">
         <div class="col-lg-6">
           <div class="login_box_img">
-            <img class="img-fluid" src="img/login.jpg" alt="">
+            <img class="img-fluid" src="https://donghotuanhung.com/wp-content/uploads/2021/01/SRWATCH-GALAXY-SL99993.4603GLA-sr-glaxy-lady.jpg" alt="">
             <div class="hover">
-              <h4>New to our website?</h4>
-              <p>There are advances being made in science and technology every day, and a good example of this is the</p>
               <button class="primary-btn" onclick="showFormSignUp()">Create an Account</button>
             </div>
           </div>
@@ -1181,7 +1225,7 @@ function showFormLogin(){
                 </div>
               </div>
               <div class="col-md-12 form-group">
-                <button  value="submit" class="primary-btn" onclick="login()">Signup</button>
+                <button  value="submit" class="primary-btn" onclick="login()">Login</button>
 
               </div>
             </form>
@@ -1210,7 +1254,6 @@ function login(){
         },
         data: JSON.stringify(user),
         success: (message)=>{
-            console.log(message)
             if(message === 'Username is not exits'){
                 alert('Username is not exits')
             }else if(message === 'Password is wrong'){
@@ -1315,7 +1358,6 @@ function login(){
 
 
 function deleteProduct(idDelete){
-    console.log(1)
     if(confirm('Ban co muon xoa khong')) {
         console.log(localStorage.getItem('token'))
         $.ajax({
@@ -1381,68 +1423,27 @@ function uploadImage(e) {
         });
 }
 
+function search() {
+            let searchTerm = $("#search").val();
+            $.ajax({
+                type: "GET",
+                url: `http://localhost:3000/products/search?search=${searchTerm}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                success: (products)=> {
+                    showProductUser(products)
 
-$("#search").on("keyup", function(event) {
-    if (event.keyCode === 13) {
-        event.preventDefault();
-        let searchTerm = $(this).val();
-        let searchTermEncoded = encodeURIComponent(searchTerm)
-        $.ajax({
-            type: "GET",
-            url: `http://localhost:3000/products/search?search=${searchTermEncoded}`,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            success: (products)=> {
-                console.log(products)
+                },
+            });
 
-                let html = `<div id="product" class="row">`;
-                products.forEach(item =>{
-                    html += `
-               <div class="col-lg-3 mb-lg-0 mb-4" style="margin: 20px 0;">
-                    <div class="card">
-                        <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-                            <a href="javascript:;" class="d-block">
-                                <img src="${item.image}" class="img-fluid border-radius-lg shadow">
-                            </a>
-                        </div>
-                        <div class="card-body pt-3">
-                            <div class="d-flex align-items-center">
-                                <div>
-                                    <span class="text-sm">${item.category.name}</span>
-                                    <h4 class="card-description font-weight-bolder text-dark mb-4">
-                                        ${item.name}</h4>
-                                </div>
-                                <div class="ms-auto">
-                                    <a href="javascript:;" class="btn btn-link text-dark p-0">
-                                        <i class="fa fa-star text-lg" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <h5 class="mb-0 font-weight-bolder">${item.price}</h5>
-                            </div>
-<!--                            Chỗ này cho hàm mua hàng vào-->
-                           <div id="buttonAddToCart">
-                            <button href="javascript:;" class="btn btn-outline-dark mb-0" id="idBy" value="${item.id}" onclick="">Add to cart</button>
-                        </div>
-                        <div id="buttonDeleteUpdate">
-                          <button href="javascript:;" class="btn btn-outline-dark mb-0" id="idDelete" value="${item.id}" onclick="deleteProduct(${item.id})" >Delete</button>
-                            <button href="javascript:;" class="btn btn-outline-dark mb-0" id="idUpdate" value="${item.id}" onclick="showFormUpdate(${item.id})">Update</button>
-                          </div>
-                        </div>
-                    </div>
-                </div>
-      `
-                })
-                html += `</div>`
-                $('#product').html(html);
-            },
-        });
-    }
-});
+}
 
-//Check out
+
+
+
+
+
 
 function showOrderCheckOut(){
     console.log(1)
@@ -1454,11 +1455,50 @@ function showOrderCheckOut(){
             Authorization: 'Bearer ' + localStorage.getItem('token')
         },
         success: function(order) {
-            // let listCategoryOptions = data.listCategory.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
             console.log(order)
             let listOrderDetails = order.orderDetail.map(item => `<li><a href="#">${item.idProduct.name} <span class="middle">X ${item.quantity}</span> <span class="last">${item.totalPrice}</span></a></li>`).join('');
-            console.log(listOrderDetails)
-            let htmlCart = `<div class="order_box">
+            let htmlCart = `
+<div id="htmlFormCheckout">
+    <section class="checkout_area section_gap">
+        <div class="container">
+            <div class="billing_details">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h3>Billing Details</h3>
+                        <div class="row contact_form" novalidate="novalidate">
+                            <div class="col-md-6 form-group p_star">
+                                <input type="text" class="form-control" id="first" name="name">
+                                <span class="placeholder" data-placeholder="First name"></span>
+                            </div>
+                            <div class="col-md-6 form-group p_star">
+                                <input type="text" class="form-control" id="last" name="name">
+                                <span class="placeholder" data-placeholder="Last name"></span>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <input type="text" class="form-control" id="company" name="company" placeholder="Company name">
+                            </div>
+                            <div class="col-md-6 form-group p_star">
+                                <input type="text" class="form-control" id="number" name="number">
+                                <span class="placeholder" data-placeholder="Phone number"></span>
+                            </div>
+                            <div class="col-md-6 form-group p_star">
+                                <input type="text" class="form-control" id="email" name="compemailany">
+                                <span class="placeholder" data-placeholder="Email Address"></span>
+                            </div>
+                            <div class="col-md-12 form-group p_star">
+                                <input type="text" class="form-control" id="address" name="add1">
+                                <span class="placeholder" data-placeholder="Address line 01"></span>
+                            </div>
+                            <div class="col-md-12 form-group p_star">
+                                <input type="text" class="form-control" id="city" name="city">
+                                <span class="placeholder" data-placeholder="Town/City"></span>
+                          
+                                <input type="hidden" id="shippingDate" value="${new Date()}" name="city">
+                           </div>
+                    </div>
+                    </div>
+                    <div class="col-lg-4">
+                          <div class="order_box">
                             <h2>Your Order</h2>
                             <ul class="list">
                                 <li><a href="#">Product <span>Total</span></a></li>
@@ -1492,12 +1532,17 @@ function showOrderCheckOut(){
                                 <label for="f-option4">I’ve read and accept the </label>
                                 <a href="#">terms & conditions*</a>
                             </div>
-                            <a class="primary-btn" href="index.html" onclick="checkOut(${order.id})">Proceed to Paypal</a>
-                        </div>`;
-
-
-            $("#order").replaceWith(htmlCart);
-
+                            <a class="primary-btn" onclick="checkOut(${order.id})">Proceed to Paypal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>`
+            ;
+            $('#replacee').replaceWith(html)
+            $("#LoginSignup").replaceWith(htmlCart);
         }
     });
 
@@ -1515,11 +1560,126 @@ function checkOut(orderId){
             Authorization: 'Bearer ' + localStorage.getItem('token')
         },
         success: function() {
-
+            $('#htmlFormAdd').replaceWith(html);
+            showHomeUser()
         }
     });
 
 }
+
+
+
+function showShoppingHistory(){
+    // let address = $('#address');
+    // console.log(address)
+    // let shippingDate = $('#shippingDate');
+    // console.log(shippingDate)
+
+    $.ajax({
+        type: 'GET',
+        url: `http://localhost:3000/shoppingHistory`,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+        },
+        success: function(orders) {
+            let htmlShoppingHistory = `<div id="htmlShoppingHistory">`
+            orders.forEach(item =>{
+                htmlShoppingHistory += `
+  <section class="order_details section_gap" >
+    <div class="container">
+            <div class="row order_d_inner">
+        <div class="col-lg-4">
+          <div class="details_item">
+            <h4>Order Info</h4>
+            <ul class="list">
+              <li><a href="#"><span>Order number</span> ${item.id}</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="details_item">
+            <h4>Billing Address</h4>
+            <ul class="list">
+              <li><a href="#"><span>Address</span> </a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="details_item">
+            <h4>Shipping Date</h4>
+            <ul class="list">
+              <li><a href="#"><span>Shipping start date</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+      <div class="order_details_table">
+        <h2>Order Details</h2>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">unitPrice</th>
+                <th scope="col">Total</th>
+              </tr>
+            </thead>
+            <tbody>`
+            item.orderDetail.forEach(item =>{
+                htmlShoppingHistory += `  
+                <tr>
+                <td>
+                  <p>${item.idProduct.name}</p>
+                </td>
+                 <td>
+                  <h5>${item.unitPrice}</h5>
+                </td>
+                <td>
+                  <h5>x ${item.quantity}</h5>
+                </td>
+                <td>
+                  <p>${item.totalPrice}</p>
+                </td>
+              </tr>`
+            })
+                htmlShoppingHistory +=`
+              <tr>
+                <td>
+                  <h4>Subtotal</h4>
+                </td>
+                 <td>
+                  <h5></h5>
+                </td>
+                <td>
+                  <h5></h5>
+                </td>
+                <td>
+                  <p>${item.orderTotalPrice}</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+`;})
+
+            htmlShoppingHistory += ` </div>`
+
+            $("#replacee").replaceWith(html);
+            $("#LoginSignup").replaceWith(htmlShoppingHistory);
+        }
+    });
+
+}
+
+
+
+
 
 
 
