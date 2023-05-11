@@ -73,9 +73,9 @@ class UserController {
 
     deleteOrderDetail = async (req:Request,res:Response) => {
         let idUser = req['decode'].userId
-        console.log(idUser)
+
         let idOrderDetail = req.params.id
-        console.log(idOrderDetail)
+
         await this.userService.deleteOrderDetailSevice(idUser,idOrderDetail);
 
 
@@ -87,7 +87,7 @@ class UserController {
         let idOrder = req.params.id
         let updateOrderDetail = req.body
         let total = await this.userService.updateOrderDetailService(idUser, idOrder, updateOrderDetail);
-        console.log(total)
+
         res.status(200).json(total)
     }
 

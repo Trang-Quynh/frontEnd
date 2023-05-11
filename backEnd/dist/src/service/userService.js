@@ -162,6 +162,22 @@ class UserService {
         this.updateOrderDetailService = async (idUser, idOrder, updateOrderDetail) => {
             let orderDetail = await this.findOrderDetail(updateOrderDetail.id);
             let totalOrderDetail = orderDetail[0].totalPrice;
+            let quantityOrderDetail = orderDetail[0].quantity;
+            console.log(quantityOrderDetail, "so luong truoc update");
+            console.log(updateOrderDetail.quantity, "so luong sau update");
+            let quantityChange = updateOrderDetail.quantity - quantityOrderDetail;
+            console.log(quantityChange, "quantitychange");
+            let product = await this.productRepository.find({
+                relations: {
+                    category: true,
+                },
+                where: {
+                    id: orderDetail[0].idProduct.id
+                }
+            });
+            console.log(product);
+            console.log(product[0].quantity - quantityChange, "kho");
+            await this.productRepository.update({ id: product[0].id }, { quantity: product[0].quantity - quantityChange });
             console.log(totalOrderDetail, "gia hang truoc update");
             let order = await this.findOrder(idUser);
             let totalOrder = order.orderTotalPrice - totalOrderDetail;

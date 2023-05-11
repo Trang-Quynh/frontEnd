@@ -48,7 +48,7 @@ class ProductController {
 
     addProduct  = async (req: Request, res: Response) => {
       let productData = req.body;
-        console.log(req.body)
+
       const productNew = await this.productService.add(productData);
       res.status(200).json(productNew)
     }
